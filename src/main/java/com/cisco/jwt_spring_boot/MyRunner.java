@@ -16,20 +16,23 @@ public class MyRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        String adminMailAddr = "admin@admin.com";
+        String userMailAddr = "user@admin.com";
+
         accountService.saveRole(new AppRole(null,"ADMIN"));
         accountService.saveRole(new AppRole(null,"USER"));
 
 
 
-        AppUser user1 = new AppUser("admin","1234",null, "admin@admin.com");
-        AppUser user2 = new AppUser("user","1234",null, "user@admin.com");
+        AppUser user1 = new AppUser("admin","1234",null, adminMailAddr);
+        AppUser user2 = new AppUser("user","1234",null, userMailAddr);
         user1.setEnabled(true);
         user2.setEnabled(true);
         accountService.saveUser(user1);
         accountService.saveUser(user2);
-        accountService.addRoleToUser("admin@admin.com","ADMIN");
-        accountService.addRoleToUser("admin@admin.com","USER");
-        accountService.addRoleToUser("user@admin.com","USER");
+        accountService.addRoleToUser(adminMailAddr,"ADMIN");
+        accountService.addRoleToUser(adminMailAddr,"USER");
+        accountService.addRoleToUser(userMailAddr,"USER");
 
 
     }

@@ -2,6 +2,15 @@ plugins {
 	id 'org.springframework.boot' version '2.2.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id "org.sonarqube" version "3.0"
+}
+
+sonarqube {
+	properties {
+		property "sonar.projectKey", "Cisco-Ndiogoye_jwt_spring_boot_filip_cisco"
+		property "sonar.organization", "cisco-ndiogoye"
+		property "sonar.host.url", "https://sonarcloud.io"
+	}
 }
 
 group = 'com.cisco'
@@ -45,3 +54,5 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+

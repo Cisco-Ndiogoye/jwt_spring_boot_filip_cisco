@@ -1,5 +1,6 @@
 package com.cisco.jwt_spring_boot.entities;
 
+import com.cisco.jwt_spring_boot.entities.request.RegisterForm;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -32,6 +33,13 @@ public class AppUser {
 
     public AppUser() {
         this.enabled = false;
+    }
+
+    public AppUser(RegisterForm userForm) {
+        this.enabled = false;
+        this.username = userForm.getUsername();
+        this.password = userForm.getPassword();
+        this.email = userForm.getEmail();
     }
 
     public AppUser(Long id, String username, String password, Collection<AppRole> roles,String email) {
