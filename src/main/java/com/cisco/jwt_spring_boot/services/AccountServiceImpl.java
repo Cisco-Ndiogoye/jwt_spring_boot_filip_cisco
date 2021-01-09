@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +21,11 @@ import java.util.Optional;
 @Service
 @Transactional
 public class AccountServiceImpl implements AccountService {
+
+    private static final String USER_NOT_FOUND = "Aucun utilisateur, avec ces informations, enregistré.";
+    private static final String PASSWORD_CONFIRMATION_ERROR = "Veuillez confirmer votre mot de passe.";
+    private static final String EMAIL_ALREADY_EXISTS = "Un compte est déjà lié à cette adresse email.";
+    private static final String USERNAME_ALREADY_EXITS = "Ce nom d'utilisateur existe déjà.";
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -38,16 +42,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AppUser registerUser(RegisterForm userForm) {
-        if(!userForm.getPassword().equals(userForm.getRepassword())) throw  new PasswordConfirmationException("Veuillez confirmer votre mot de passe.");
-        if(this.emailExist(userForm.getEmail())) throw new ResourceAlreadyExistsException("Un compte est déjà lié à cette adresse email.");
-        if(this.usernameExist(userForm.getUsername())) throw new ResourceAlreadyExistsException("Ce nom d'utilisateur existe déjà.");
+        String adminRole = "ADMIN";
+        String pharmacienRole = "PHARMACIEN";
+        if(!userForm.getPassword().equals(userForm.getRepassword())) throw  new PasswordConfirmationException(PASSWORD_CONFIRMATION_ERROR);
+        if(this.emailExist(userForm.getEmail())) throw new ResourceAlreadyExistsException(EMAIL_ALREADY_EXISTS);
+        if(this.usernameExist(userForm.getUsername())) throw new ResourceAlreadyExistsException(USERNAME_ALREADY_EXITS);
         AppUser appUser = new AppUser(userForm);
         this.saveUser(appUser);
-        if(userForm.getRole().equals("ADMIN")){
-            this.addRoleToUser(userForm.getEmail(),"ADMIN");
-            this.addRoleToUser(userForm.getEmail(), "PHARMACIEN");
-        }if(userForm.getRole().equals("PHARMACIEN")){
-            this.addRoleToUser(userForm.getEmail(), "PHARMACIEN");
+        if(userForm.getRole().equals(adminRole)){
+            this.addRoleToUser(userForm.getEmail(),adminRole);
+            this.addRoleToUser(userForm.getEmail(), pharmacienRole);
+        }
+        if(userForm.getRole().equals(pharmacienRole)){
+            this.addRoleToUser(userForm.getEmail(), pharmacienRole);
         }
         verificationTokenService.createVerification(appUser.getEmail());
         return appUser;
@@ -69,25 +76,43 @@ public class AccountServiceImpl implements AccountService {
     public void addRoleToUser(String email, String roleName) {
         Optional<AppRole> role = roleRepository.findByRole(roleName);
         Optional<AppUser> user = userRepository.findByEmail(email);
-        if(user.get().getRoles() == null){
-        List<AppRole> list = new ArrayList<AppRole>();
-        list.add(role.get());
-        user.get().setRoles(list);
+        if(!user.isPresent()){
+            List<AppRole> list = new ArrayList<AppRole>();
+            if (role.isPresent()) {
+                list.add(role.get());
+                user.get().setRoles(list);
+            }
         } else {
-            user.get().getRoles().add(role.get());
+            if (role.isPresent()) {
+                user.get().getRoles().add(role.get());
+            }
         }
     }
 
     @Override
-    public AppUser findUserByUsername(String username) {  return userRepository.findByUsername(username).get();    }
+    public AppUser findUserByUsername(String username) {
+        Optional<AppUser> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
+        }
+    }
 
     @Override
-    public AppUser findUserByEmail(String email){   return userRepository.findByEmail(email).get();    }
+    public AppUser findUserByEmail(String email){
+        Optional<AppUser> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            return userOptional.get();
+        } else {
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
+        }
+    }
 
     @Override
     public AppUser updateUser(AppUser user) {
         Optional<AppUser> appUser = userRepository.findByEmail(user.getEmail());
-        if(!appUser.isPresent()) throw new ResourceNotFoundException("Aucun utilisateur, avec ces informations, enregistré.");
+        if(!appUser.isPresent()) throw new ResourceNotFoundException(USER_NOT_FOUND);
         return userRepository.save(user);
     }
 

@@ -32,9 +32,7 @@ public class AccountRestController {
 
     @PutMapping("/login/recover")
     public AppUser updatePassword ( @RequestBody RegisterForm userForm){
-        if(!userForm.getPassword().equals(userForm.getRepassword())) throw  new PasswordConfirmationException("Veuillez confirmer votre mot de passe.");
-        System.out.println(userForm.getPassword());
-        System.out.println(userForm.getPassword());
+        if (!userForm.getPassword().equals(userForm.getRepassword())) throw  new PasswordConfirmationException("Veuillez confirmer votre mot de passe.");
         return accountService.updateUserPassword(userForm);
     }
 

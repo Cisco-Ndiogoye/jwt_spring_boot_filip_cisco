@@ -66,8 +66,8 @@ public class SendMailService implements SendMail{
      */
     @Override
     public void sendEmail(String toEmail, String subject, String body){
-        final String username = "pipondiogoye@gmail.com";
-        final String password = "ndione25";
+        final String username = "sndev1996@gmail.com";
+        final String password = "qxPxUO0rm19R";
 
         Properties prop = new Properties();
         prop.put("mail.smtp.host", "smtp.gmail.com");

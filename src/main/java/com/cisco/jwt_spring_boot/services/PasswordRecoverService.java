@@ -1,15 +1,12 @@
 package com.cisco.jwt_spring_boot.services;
 
 import com.cisco.jwt_spring_boot.dao.AppUserRepository;
-import com.cisco.jwt_spring_boot.dao.VerificationTokenRepository;
 import com.cisco.jwt_spring_boot.entities.AppUser;
-import com.cisco.jwt_spring_boot.entities.VerificationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PasswordRecoverService {
@@ -25,9 +22,9 @@ public class PasswordRecoverService {
     }
 
     public ResponseEntity<String> recoverPassword(String email){
-        AppUser appUser = userRepository.findByEmail(email);
+        Optional<AppUser> appUser = userRepository.findByEmail(email);
         System.out.println(appUser);
-        if(appUser == null){
+        if(!appUser.isPresent()){
             return ResponseEntity.badRequest().body("No user linked to this email address.");
         }
         sendingMailService.sendPasswordRecoverMail(email);
