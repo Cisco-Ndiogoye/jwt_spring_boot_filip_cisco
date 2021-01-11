@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +25,8 @@ public class AccountServiceImpl implements AccountService {
     private static final String PASSWORD_CONFIRMATION_ERROR = "Veuillez confirmer votre mot de passe.";
     private static final String EMAIL_ALREADY_EXISTS = "Un compte est déjà lié à cette adresse email.";
     private static final String USERNAME_ALREADY_EXITS = "Ce nom d'utilisateur existe déjà.";
+    private static final String ADMIN_ROLE = "ADMIN";
+    private static final String PHARMACIEN_ROLE = "PHARMACIEN";
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -42,19 +43,17 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AppUser registerUser(RegisterForm userForm) {
-        String adminRole = "ADMIN";
-        String pharmacienRole = "PHARMACIEN";
         if(!userForm.getPassword().equals(userForm.getRepassword())) throw  new PasswordConfirmationException(PASSWORD_CONFIRMATION_ERROR);
         if(this.emailExist(userForm.getEmail())) throw new ResourceAlreadyExistsException(EMAIL_ALREADY_EXISTS);
         if(this.usernameExist(userForm.getUsername())) throw new ResourceAlreadyExistsException(USERNAME_ALREADY_EXITS);
         AppUser appUser = new AppUser(userForm);
         this.saveUser(appUser);
-        if(userForm.getRole().equals(adminRole)){
-            this.addRoleToUser(userForm.getEmail(),adminRole);
-            this.addRoleToUser(userForm.getEmail(), pharmacienRole);
+        if(userForm.getRole().equals(ADMIN_ROLE)){
+            this.addRoleToUser(userForm.getEmail(), ADMIN_ROLE);
+            this.addRoleToUser(userForm.getEmail(), PHARMACIEN_ROLE);
         }
-        if(userForm.getRole().equals(pharmacienRole)){
-            this.addRoleToUser(userForm.getEmail(), pharmacienRole);
+        if(userForm.getRole().equals(PHARMACIEN_ROLE)){
+            this.addRoleToUser(userForm.getEmail(), PHARMACIEN_ROLE);
         }
         verificationTokenService.createVerification(appUser.getEmail());
         return appUser;
@@ -76,16 +75,14 @@ public class AccountServiceImpl implements AccountService {
     public void addRoleToUser(String email, String roleName) {
         Optional<AppRole> role = roleRepository.findByRole(roleName);
         Optional<AppUser> user = userRepository.findByEmail(email);
-        if(!user.isPresent()){
-            List<AppRole> list = new ArrayList<AppRole>();
-            if (role.isPresent()) {
-                list.add(role.get());
-                user.get().setRoles(list);
-            }
-        } else {
-            if (role.isPresent()) {
+        if (user.isPresent()) {
+            if (!role.isPresent()) {
+                user.get().getRoles().add(this.saveRole(new AppRole(null, roleName)));
+            } else {
                 user.get().getRoles().add(role.get());
             }
+        } else {
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
         }
     }
 
