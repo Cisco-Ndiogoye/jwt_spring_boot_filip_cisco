@@ -2,11 +2,11 @@ package com.cisco.jwt_spring_boot.controllers;
 
 import com.cisco.jwt_spring_boot.dao.AppUserRepository;
 import com.cisco.jwt_spring_boot.entities.AppUser;
-import com.cisco.jwt_spring_boot.entities.exception.PasswordConfirmationException;
+import com.cisco.jwt_spring_boot.exception.PasswordConfirmationException;
 import com.cisco.jwt_spring_boot.entities.request.RegisterForm;
 import com.cisco.jwt_spring_boot.services.AccountService;
 import com.cisco.jwt_spring_boot.services.PasswordRecoverService;
-import com.cisco.jwt_spring_boot.services.VerificationTokenService;
+import com.cisco.jwt_spring_boot.services.VerificationTokenServiceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class AccountRestController {
     private PasswordRecoverService passwordRecoverService;
 
     @Autowired
-    private VerificationTokenService verificationTokenService;
+    private VerificationTokenServiceServiceImpl verificationTokenServiceImpl;
 
     @PutMapping("/login/recover")
     public AppUser updatePassword ( @RequestBody RegisterForm userForm){
@@ -41,7 +41,7 @@ public class AccountRestController {
 
     @GetMapping("/register/verify")
     public String verifyEmail(@RequestParam String token) {
-        return verificationTokenService.verifyEmail(token).getBody();
+        return verificationTokenServiceImpl.verifyEmail(token).getBody();
     }
 
     @PostMapping("/register")

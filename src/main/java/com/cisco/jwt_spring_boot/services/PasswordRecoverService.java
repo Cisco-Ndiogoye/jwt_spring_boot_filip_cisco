@@ -13,10 +13,10 @@ public class PasswordRecoverService {
 
 
     private AppUserRepository userRepository;
-    private SendMailService sendingMailService;
+    private SendMailServiceServiceImpl sendingMailService;
 
     @Autowired
-    public PasswordRecoverService(AppUserRepository userRepository,SendMailService sendingMailService){
+    public PasswordRecoverService(AppUserRepository userRepository, SendMailServiceServiceImpl sendingMailService){
         this.sendingMailService = sendingMailService;
         this.userRepository = userRepository;
     }

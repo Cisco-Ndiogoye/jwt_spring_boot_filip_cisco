@@ -4,9 +4,9 @@ import com.cisco.jwt_spring_boot.dao.AppRoleRepository;
 import com.cisco.jwt_spring_boot.dao.AppUserRepository;
 import com.cisco.jwt_spring_boot.entities.AppRole;
 import com.cisco.jwt_spring_boot.entities.AppUser;
-import com.cisco.jwt_spring_boot.entities.exception.PasswordConfirmationException;
-import com.cisco.jwt_spring_boot.entities.exception.ResourceAlreadyExistsException;
-import com.cisco.jwt_spring_boot.entities.exception.ResourceNotFoundException;
+import com.cisco.jwt_spring_boot.exception.PasswordConfirmationException;
+import com.cisco.jwt_spring_boot.exception.ResourceAlreadyExistsException;
+import com.cisco.jwt_spring_boot.exception.ResourceNotFoundException;
 import com.cisco.jwt_spring_boot.entities.request.RegisterForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Autowired
-    private VerificationTokenService verificationTokenService;
+    private VerificationTokenServiceServiceImpl verificationTokenServiceImpl;
 
     @Override
     public AppUser registerUser(RegisterForm userForm) {
@@ -55,7 +55,7 @@ public class AccountServiceImpl implements AccountService {
         if(userForm.getRole().equals(PHARMACIEN_ROLE)){
             this.addRoleToUser(userForm.getEmail(), PHARMACIEN_ROLE);
         }
-        verificationTokenService.createVerification(appUser.getEmail());
+        verificationTokenServiceImpl.createVerification(appUser.getEmail());
         return appUser;
     }
 
