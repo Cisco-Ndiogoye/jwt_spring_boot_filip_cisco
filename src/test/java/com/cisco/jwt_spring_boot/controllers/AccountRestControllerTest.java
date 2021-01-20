@@ -57,7 +57,7 @@ class AccountRestControllerTest {
 
     @Test
     @DisplayName("POST /api/account/register")
-    void registerWithoutJWTToken() throws Exception {
+    void register() throws Exception {
 
         RegisterForm registerForm = new RegisterForm("Gael", "1234", "1234", "gael@example.com", null, null, null, null, "+221000000000", "PHARMACIEN");
         doReturn(appUser1).when(accountService).registerUser(registerForm);
