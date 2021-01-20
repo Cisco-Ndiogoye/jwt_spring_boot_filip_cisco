@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Entity
 public class AppUser {
@@ -60,10 +59,12 @@ public class AppUser {
         this.enabled = false;
     }
 
+    @JsonIgnore
     public VerificationToken getVerificationToken() {
         return verificationToken;
     }
 
+    @JsonIgnore
     public void setVerificationToken(VerificationToken verificationToken) {
         this.verificationToken = verificationToken;
     }
