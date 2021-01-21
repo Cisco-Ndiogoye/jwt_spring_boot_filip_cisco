@@ -1,0 +1,125 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: AppUserDetailsService</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.cisco.jwt_spring_boot.services</a> ]
+</div>
+
+<h1>Coverage Summary for Class: AppUserDetailsService (com.cisco.jwt_spring_boot.services)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AppUserDetailsService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    33,3%
+  </span>
+  <span class="absValue">
+    (1/ 3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    7,7%
+  </span>
+  <span class="absValue">
+    (1/ 13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.cisco.jwt_spring_boot.services;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;import com.cisco.jwt_spring_boot.entities.AppUser;
+<i>4</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i>5</i>&nbsp;import org.springframework.security.core.GrantedAuthority;
+<i>6</i>&nbsp;import org.springframework.security.core.authority.SimpleGrantedAuthority;
+<i>7</i>&nbsp;import org.springframework.security.core.userdetails.User;
+<i>8</i>&nbsp;import org.springframework.security.core.userdetails.UserDetails;
+<i>9</i>&nbsp;import org.springframework.security.core.userdetails.UsernameNotFoundException;
+<i>10</i>&nbsp;import org.springframework.stereotype.Service;
+<i>11</i>&nbsp;
+<i>12</i>&nbsp;import java.util.ArrayList;
+<i>13</i>&nbsp;import java.util.Collection;
+<i>14</i>&nbsp;
+<i>15</i>&nbsp;@Service
+<b class="fc"><i>16</i>&nbsp;public class AppUserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {</b>
+<i>17</i>&nbsp;
+<i>18</i>&nbsp;    @Autowired
+<i>19</i>&nbsp;    private AccountService accountService;
+<i>20</i>&nbsp;
+<i>21</i>&nbsp;    @Override
+<i>22</i>&nbsp;    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<i>23</i>&nbsp;
+<b class="nc"><i>24</i>&nbsp;        boolean accountNonExpired = true;</b>
+<b class="nc"><i>25</i>&nbsp;        boolean credentialsNonExpired = true;</b>
+<b class="nc"><i>26</i>&nbsp;        boolean accountNonLocked = true;</b>
+<i>27</i>&nbsp;
+<i>28</i>&nbsp;        try {
+<b class="nc"><i>29</i>&nbsp;            AppUser user = accountService.findUserByUsername(username);</b>
+<b class="nc"><i>30</i>&nbsp;            if(user == null) throw new UsernameNotFoundException(username);</b>
+<b class="nc"><i>31</i>&nbsp;            Collection&lt;GrantedAuthority&gt; authorities  = new ArrayList&lt;&gt;();</b>
+<b class="nc"><i>32</i>&nbsp;            user.getRoles().forEach(r-&gt; {</b>
+<b class="nc"><i>33</i>&nbsp;                authorities.add(new SimpleGrantedAuthority(r.getRole()));</b>
+<b class="nc"><i>34</i>&nbsp;            });</b>
+<b class="nc"><i>35</i>&nbsp;            return new User(user.getUsername(),user.getPassword(),user.isEnabled(),accountNonExpired,credentialsNonExpired,accountNonLocked,authorities);</b>
+<b class="nc"><i>36</i>&nbsp;        }catch (Exception e){</b>
+<b class="nc"><i>37</i>&nbsp;            throw new RuntimeException(e);</b>
+<i>38</i>&nbsp;        }
+<i>39</i>&nbsp;    }
+<i>40</i>&nbsp;
+<i>41</i>&nbsp;
+<i>42</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-01-21 15:45</div>
+</div>
+</body>
+</html>

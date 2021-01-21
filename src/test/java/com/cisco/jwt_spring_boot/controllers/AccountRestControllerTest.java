@@ -2,54 +2,64 @@ package com.cisco.jwt_spring_boot.controllers;
 
 import com.cisco.jwt_spring_boot.entities.AppRole;
 import com.cisco.jwt_spring_boot.entities.AppUser;
+import com.cisco.jwt_spring_boot.entities.VerificationToken;
 import com.cisco.jwt_spring_boot.entities.request.RegisterForm;
+import com.cisco.jwt_spring_boot.exception.PasswordConfirmationException;
 import com.cisco.jwt_spring_boot.services.AccountService;
+import com.cisco.jwt_spring_boot.services.PasswordRecoverService;
+import com.cisco.jwt_spring_boot.services.VerificationTokenServiceServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.jayway.jsonpath.JsonPath;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-
-import static org.mockito.Mockito.doReturn;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@AutoConfigureMockMvc
 class AccountRestControllerTest {
 
     private static AppUser appUser1;
     private static AppUser appUser2;
     private static AppUser appUser3;
 
-    @MockBean
+    @Mock
     private AccountService accountService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    private PasswordRecoverService passwordRecoverService;
+
+    @Mock
+    private VerificationTokenServiceServiceImpl verificationTokenServiceImpl;
+
+    @InjectMocks
+    private AccountRestController accountRestController;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
 
     @BeforeAll
     public static void init() {
 
         Collection<AppRole> roles = new ArrayList<>();
         roles.add(new AppRole(null, "PHARMACIEN"));
-        //appUser1 = new AppUser("Gael", "12345", roles, "gael@example.com");
+        appUser1 = new AppUser("Gael", "12345", roles, "gael@example.com");
         appUser2 = new AppUser("Yolande", "1234", roles, "yolande@example.com");
         appUser3 = new AppUser("Adele", "1234", roles, "adele@example.com");
 
@@ -57,47 +67,33 @@ class AccountRestControllerTest {
 
     @Test
     @DisplayName("POST /api/account/register")
-    void register() throws Exception {
+    void register() {
 
-        RegisterForm registerForm = new RegisterForm("Gael", "1234", "1234", "gael@example.com", null, null, null, null, "+221000000000", "PHARMACIEN");
-        doReturn(appUser1).when(accountService).registerUser(registerForm);
+        RegisterForm registerForm = new RegisterForm("Gael", "12345", "12345", "gael@example.com", null, null, null, null, "+221000000000", "PHARMACIEN");
+        AppUser registeredUser = accountRestController.register(registerForm);
+        Mockito.verify(accountService, Mockito.times(1)).registerUser(registerForm);
 
-
-        mockMvc.perform(post("/api/account/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(registerForm)))
-
-                .andExpect(status().isForbidden());
     }
 
-    /*
     @Test
     void updatePasswordValid() {
 
         RegisterForm registerForm = new RegisterForm("Gael", "1234", "1234", "gael@example.com", null, null, null, null, "+221000000000", "PHARMACIEN");
         appUser1 = accountRestController.updatePassword(registerForm);
-        assertThat(accountService.findUserByUsername(registerForm.getUsername()).getPassword(), is(registerForm.getPassword()));
+        Mockito.verify(accountService, Mockito.times(1)).updateUserPassword(registerForm);
+
 
     }
 
     @Test
-    void updatePasswordNotValid() {
+    void updatePasswordNotValid() throws PasswordConfirmationException {
 
         RegisterForm registerForm = new RegisterForm("Gael", "1234", "12345", "gael@example.com", null, null, null, null, "+221000000000", "PHARMACIEN");
-        assertThat(accountRestController.updatePassword(registerForm), instanceOf(RuntimeException.class));
-
+        Assertions.assertThrows(PasswordConfirmationException.class, () ->{
+           accountRestController.updatePassword(registerForm);
+        });
 
     }
-
-
-    @Test
-    void recover() {
-    }
-
-    @Test
-    void verifyEmail() {
-    }
-
 
     @Test
     void users_WhenNoRecord() {
@@ -117,7 +113,25 @@ class AccountRestControllerTest {
 
     }
 
-     */
+    @Test
+    void recover() {
+
+        Mockito.when(passwordRecoverService.recoverPassword("example@example.com")).thenReturn(ResponseEntity.ok("Please check your mail address."));
+        assertThat(accountRestController.recover("example@example.com").getStatusCode(), is(HttpStatus.OK));
+        Mockito.verify(passwordRecoverService, Mockito.times(1)).recoverPassword("example@example.com");
+
+    }
+
+    @Test
+    void verifyEmail() {
+
+        VerificationToken verificationToken = new VerificationToken();
+        Mockito.when(verificationTokenServiceImpl.verifyEmail(verificationToken.getToken())).thenReturn(ResponseEntity.ok("You have successfully verified your email address."));
+        assertThat(accountRestController.verifyEmail(verificationToken.getToken()).getStatusCode(), is(HttpStatus.OK));
+        Mockito.verify(verificationTokenServiceImpl, Mockito.times(1)).verifyEmail(verificationToken.getToken());
+
+    }
+
 
     static String asJsonString(final Object obj) {
         try {

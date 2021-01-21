@@ -1,0 +1,54 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: SendMailService</title>
+  <style type="text/css">
+    @import "../../.css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">all classes</a> ]
+    [ <a href="../index.html">com.cisco.jwt_spring_boot.services</a> ]
+</div>
+
+<h1>Coverage Summary for Class: SendMailService (com.cisco.jwt_spring_boot.services)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">SendMailService</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;package com.cisco.jwt_spring_boot.services;
+<i>2</i>&nbsp;
+<i>3</i>&nbsp;public interface SendMailService {
+<i>4</i>&nbsp;    boolean sendVerificationMail(String toEmail, String verificationCode);
+<i>5</i>&nbsp;    boolean sendUserCredentials(String toEmail, String username, String password);
+<i>6</i>&nbsp;    void sendEmail(String toEmail, String subject, String body);
+<i>7</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2021-01-21 15:45</div>
+</div>
+</body>
+</html>

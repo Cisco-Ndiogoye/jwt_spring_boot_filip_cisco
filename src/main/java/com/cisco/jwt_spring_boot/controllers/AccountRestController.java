@@ -40,8 +40,8 @@ public class AccountRestController {
     public ResponseEntity<String> recover(@RequestBody String email){ return passwordRecoverService.recoverPassword(email); }
 
     @GetMapping("/register/verify")
-    public String verifyEmail(@RequestParam String token) {
-        return verificationTokenServiceImpl.verifyEmail(token).getBody();
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        return verificationTokenServiceImpl.verifyEmail(token);
     }
 
     @PostMapping("/register")
